@@ -94,7 +94,12 @@ section{padding:110px var(--pad-x)}
 
 /* belief */
 .belief{background:var(--white)}
-.manifesto{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.2vw,46px);line-height:1.2;max-width:1000px;text-transform:none;letter-spacing:0}
+.belief-top{display:grid;grid-template-columns:1.35fr .65fr;gap:48px;align-items:center}
+.manifesto{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.2vw,44px);line-height:1.2;text-transform:none;letter-spacing:0}
+.belief-emblem{position:relative;display:flex;justify-content:center;align-items:center;min-height:400px}
+#beliefGears{width:100%;height:auto;max-width:460px;overflow:visible;opacity:.16}
+#bgGearA,#bgGearB,#bgGearC{transform-origin:center}
+#bgEmblem{opacity:.9}
 .manifesto .accent{color:var(--red)}
 .ways{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:70px}
 .way{border:1px solid var(--line);border-radius:4px;padding:36px}
@@ -236,6 +241,8 @@ footer{background:var(--navy);color:#fff;padding:100px var(--pad-x) 40px;positio
   .spine a:nth-child(2){border-right:0}
   .spine a:nth-child(1),.spine a:nth-child(2){border-bottom:1px solid var(--line)}
   .ways,.pillars{grid-template-columns:1fr}
+  .belief-top{grid-template-columns:1fr}
+  .belief-emblem{min-height:280px;order:-1}
   .spec-strip{grid-template-columns:1fr 1fr}
   .spec-strip .spec{border-right:0;border-bottom:1px solid var(--line)}
   .founder-cards{grid-template-columns:min(400px,86vw);gap:56px}
@@ -308,7 +315,17 @@ footer{background:var(--navy);color:#fff;padding:100px var(--pad-x) 40px;positio
 <!-- 01 BELIEF -->
 <section class="belief" id="belief">
   <div class="sec-head rv"><span class="sec-num">01</span><h2 class="sec-title">Belief</h2></div>
-  <p class="manifesto rv">Every business runs differently. Off-the-shelf software makes them all run the same. We build systems that <span class="accent">adapt to the business</span> — its structure, its workflows, its industry — so the business never has to adapt to the software.</p>
+  <div class="belief-top">
+    <p class="manifesto rv">Every business runs differently. Off-the-shelf software makes them all run the same. We build systems that <span class="accent">adapt to the business</span> — its structure, its workflows, its industry — so the business never has to adapt to the software.</p>
+    <div class="belief-emblem" aria-hidden="true">
+      <svg id="beliefGears" viewBox="-260 -260 520 520" xmlns="http://www.w3.org/2000/svg">
+        <g id="bgGearA" fill="#1F2E4D"></g>
+        <g id="bgGearB" fill="#D52924"></g>
+        <g id="bgGearC" fill="#1F2E4D"></g>
+        <image id="bgEmblem" x="-118" y="-120" width="236" height="240"></image>
+      </svg>
+    </div>
+  </div>
   <div class="ways">
     <div class="way dark rv">
       <h3><span class="dot"></span>The standard way</h3>
@@ -648,6 +665,50 @@ footer{background:var(--navy);color:#fff;padding:100px var(--pad-x) 40px;positio
   },{threshold:0.15});
   document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
 
+  // ---- belief: scroll-driven gear mechanism (upright when centered) ----
+  (function(){
+    var svg=document.getElementById('beliefGears'); if(!svg) return;
+    // build blocky gears echoing the logo
+    function gearPath(R,teeth,toothH,toothFrac,holeR){
+      var pts=[],N=teeth,step=Math.PI*2/N;
+      for(var i=0;i<N;i++){
+        var a0=i*step, tw=step*toothFrac, gw=(step-tw), a1=a0+gw/2, a2=a1+tw;
+        pts.push([a0,R],[a1,R],[a1+tw*0.14,R+toothH],[a2-tw*0.14,R+toothH],[a2,R],[a0+step,R]);
+      }
+      var d='';
+      pts.forEach(function(p,idx){ var x=Math.cos(p[0])*p[1], y=Math.sin(p[0])*p[1]; d+=(idx===0?'M':'L')+x.toFixed(1)+' '+y.toFixed(1); });
+      d+='Z';
+      d+='M'+holeR+' 0A'+holeR+' '+holeR+' 0 1 0 -'+holeR+' 0A'+holeR+' '+holeR+' 0 1 0 '+holeR+' 0Z';
+      return d;
+    }
+    var A=document.getElementById('bgGearA'),
+        B=document.getElementById('bgGearB'),
+        C=document.getElementById('bgGearC'),
+        emb=document.getElementById('bgEmblem');
+    A.innerHTML='<path fill-rule="evenodd" d="'+gearPath(150,10,34,0.42,96)+'"/>';
+    B.innerHTML='<path fill-rule="evenodd" d="'+gearPath(70,8,20,0.42,42)+'"/>';
+    C.innerHTML='<path fill-rule="evenodd" d="'+gearPath(52,8,16,0.42,30)+'"/>';
+    // satellite gear centers (offset around the main gear)
+    var Bc={x:174,y:135}, Cc={x:-158,y:126};
+    emb.setAttribute('href', EMBLEM);
+    var sec=document.getElementById('belief');
+    function render(){
+      var r=sec.getBoundingClientRect(), vh=window.innerHeight;
+      var center=r.top+r.height/2;
+      // offset in "viewport heights" from centered: 0 when centered, +/- as it moves away
+      var off=(center-vh/2)/vh;              // ~ -1..+1 across the scroll
+      var turns=reduced?0:off*300;           // degrees; 0 exactly when centered => upright
+      A.setAttribute('transform','rotate('+turns+')');
+      B.setAttribute('transform','translate('+Bc.x+','+Bc.y+') rotate('+(-turns*150/70)+')');
+      C.setAttribute('transform','translate('+Cc.x+','+Cc.y+') rotate('+(-turns*150/52)+')');
+      // emblem counter-rotates gently with main gear but stays near-upright at center
+      emb.setAttribute('transform','rotate('+(turns*0.12)+')');
+    }
+    var t=false;
+    window.addEventListener('scroll',function(){ if(t)return;t=true;requestAnimationFrame(function(){render();t=false;}); },{passive:true});
+    window.addEventListener('resize',render);
+    render();
+  })();
   // ---- process: self-drawing spine + active step ----
   (function(){
     var track=document.querySelector('.proc-track'); if(!track) return;
