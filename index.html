@@ -97,7 +97,7 @@ section{padding:110px var(--pad-x)}
 .belief-top{display:grid;grid-template-columns:1.35fr .65fr;gap:48px;align-items:center}
 .manifesto{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.2vw,44px);line-height:1.2;text-transform:none;letter-spacing:0}
 .belief-emblem{position:relative;display:flex;justify-content:center;align-items:center;min-height:400px}
-#beliefGears{width:100%;height:auto;max-width:460px;overflow:visible;opacity:.16}
+#beliefGears{width:100%;height:auto;max-width:460px;overflow:visible}
 #bgEmblem{opacity:1}
 .manifesto .accent{color:var(--red)}
 .ways{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:70px}
@@ -318,12 +318,11 @@ footer{background:var(--navy);color:#fff;padding:100px var(--pad-x) 40px;positio
     <p class="manifesto rv">Every business runs differently. Off-the-shelf software makes them all run the same. We build systems that <span class="accent">adapt to the business</span> — its structure, its workflows, its industry — so the business never has to adapt to the software.</p>
     <div class="belief-emblem" aria-hidden="true">
       <svg id="beliefGears" viewBox="-260 -260 520 520" xmlns="http://www.w3.org/2000/svg">
-        <g id="bgCluster">
-          <g id="bgGearA" fill="#1F2E4D"></g>
-          <g id="bgGearB" fill="#D52924"></g>
-          <g id="bgGearC" fill="#1F2E4D"></g>
+        <g id="bgGears" opacity="0.2">
+          <g id="bgGearB" fill="#1F2E4D"></g>
+          <g id="bgGearC" fill="#D52924"></g>
         </g>
-        <image id="bgEmblem" x="-118" y="-120" width="236" height="240"></image>
+        <image id="bgEmblem" x="-110" y="-112" width="220" height="224"></image>
       </svg>
     </div>
   </div>
@@ -682,31 +681,25 @@ footer{background:var(--navy);color:#fff;padding:100px var(--pad-x) 40px;positio
       d+='M'+holeR+' 0A'+holeR+' '+holeR+' 0 1 0 -'+holeR+' 0A'+holeR+' '+holeR+' 0 1 0 '+holeR+' 0Z';
       return d;
     }
-    var cluster=document.getElementById('bgCluster');
-    cluster.setAttribute('transform','translate(-70,-64)');
-    var A=document.getElementById('bgGearA'),
-        B=document.getElementById('bgGearB'),
+    var B=document.getElementById('bgGearB'),
         C=document.getElementById('bgGearC'),
         emb=document.getElementById('bgEmblem');
-    A.innerHTML='<path fill-rule="evenodd" d="'+gearPath(150,10,34,0.42,96)+'"/>';
-    B.innerHTML='<path fill-rule="evenodd" d="'+gearPath(70,8,20,0.42,42)+'"/>';
-    C.innerHTML='<path fill-rule="evenodd" d="'+gearPath(52,8,16,0.42,30)+'"/>';
-    // satellite gear centers (offset around the main gear)
-    var Bc={x:174,y:135}, Cc={x:-158,y:126};
+    // satellite gears beside the emblem (emblem itself is the central gear = the logo's ring)
+    B.innerHTML='<path fill-rule="evenodd" d="'+gearPath(64,9,16,0.42,40)+'"/>';
+    C.innerHTML='<path fill-rule="evenodd" d="'+gearPath(44,8,12,0.42,26)+'"/>';
+    var Bc={x:-152,y:-81}, Cc={x:118,y:92};
     emb.setAttribute('href', EMBLEM);
     var sec=document.getElementById('belief');
-    var RA=150, RB=70, RC=52;               // pitch radii -> ratios for meshing
+    var eR=100, RB=64, RC=44;   // effective radii for mesh ratios
     function render(){
       var r=sec.getBoundingClientRect(), vh=window.innerHeight;
       var center=r.top+r.height/2;
-      var off=(center-vh/2)/vh;              // 0 when section centered, +/- as it moves away
-      var turns=reduced?0:off*560;           // main gear angle (deg); faster spin, 0 => upright when centered
-      // main gear + emblem hub rotate together in place
-      A.setAttribute('transform','rotate('+turns+')');
+      var off=(center-vh/2)/vh;               // 0 when centered => upright
+      var turns=reduced?0:off*560;            // emblem (central gear) angle
       emb.setAttribute('transform','rotate('+turns+')');
-      // satellites: pinned at their own centers, spinning opposite the main gear at the mesh ratio
-      B.setAttribute('transform','translate('+Bc.x+','+Bc.y+') rotate('+(-turns*RA/RB)+')');
-      C.setAttribute('transform','translate('+Cc.x+','+Cc.y+') rotate('+(-turns*RA/RC)+')');
+      // satellites pinned, counter-rotating at mesh ratio, spinning about their own centers
+      B.setAttribute('transform','translate('+Bc.x+','+Bc.y+') rotate('+(-turns*eR/RB)+')');
+      C.setAttribute('transform','translate('+Cc.x+','+Cc.y+') rotate('+(-turns*eR/RC)+')');
     }
     var t=false;
     window.addEventListener('scroll',function(){ if(t)return;t=true;requestAnimationFrame(function(){render();t=false;}); },{passive:true});
