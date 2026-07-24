@@ -98,7 +98,7 @@ section{padding:110px var(--pad-x)}
 .manifesto{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.2vw,44px);line-height:1.2;text-transform:none;letter-spacing:0}
 .belief-emblem{position:relative;display:flex;justify-content:center;align-items:center;min-height:400px}
 #beliefGears{width:100%;height:auto;max-width:460px;overflow:visible;opacity:.16}
-#bgEmblem{opacity:.9}
+#bgEmblem{opacity:1}
 .manifesto .accent{color:var(--red)}
 .ways{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:70px}
 .way{border:1px solid var(--line);border-radius:4px;padding:36px}
@@ -318,9 +318,11 @@ footer{background:var(--navy);color:#fff;padding:100px var(--pad-x) 40px;positio
     <p class="manifesto rv">Every business runs differently. Off-the-shelf software makes them all run the same. We build systems that <span class="accent">adapt to the business</span> — its structure, its workflows, its industry — so the business never has to adapt to the software.</p>
     <div class="belief-emblem" aria-hidden="true">
       <svg id="beliefGears" viewBox="-260 -260 520 520" xmlns="http://www.w3.org/2000/svg">
-        <g id="bgGearA" fill="#1F2E4D"></g>
-        <g id="bgGearB" fill="#D52924"></g>
-        <g id="bgGearC" fill="#1F2E4D"></g>
+        <g id="bgCluster">
+          <g id="bgGearA" fill="#1F2E4D"></g>
+          <g id="bgGearB" fill="#D52924"></g>
+          <g id="bgGearC" fill="#1F2E4D"></g>
+        </g>
         <image id="bgEmblem" x="-118" y="-120" width="236" height="240"></image>
       </svg>
     </div>
@@ -680,6 +682,8 @@ footer{background:var(--navy);color:#fff;padding:100px var(--pad-x) 40px;positio
       d+='M'+holeR+' 0A'+holeR+' '+holeR+' 0 1 0 -'+holeR+' 0A'+holeR+' '+holeR+' 0 1 0 '+holeR+' 0Z';
       return d;
     }
+    var cluster=document.getElementById('bgCluster');
+    cluster.setAttribute('transform','translate(-70,-64)');
     var A=document.getElementById('bgGearA'),
         B=document.getElementById('bgGearB'),
         C=document.getElementById('bgGearC'),
